@@ -2,4 +2,4 @@
 Simple production-ready end-to-end ML pipeline with CI/CD, auto-deployments, rollback, and monitoring
 
 ## Stack: 
-GitHub Actions + Docker + SageMaker + AWS ECS + MLflow + Terraform
+FastAPI + Docker + Kubernetes (CKAD) + GitHub Actions + Helm + AWS + Terraform

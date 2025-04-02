@@ -38,3 +38,28 @@ X_train, X_val, y_train, y_val = train_test_split(
     X, y, test_size=0.2, stratify=y, random_state=42
 )
 
+# Train Model
+model = xgb.XGBClassifier(
+    n_estimators=100,
+    max_depth=6,
+    learning_rate=0.1,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    scale_pos_weight=(y_train == 0).sum() / (y_train == 1).sum(),
+    random_state=42,
+    use_label_encoder=False,
+    eval_metric='logloss'
+)
+
+with mlflow.start_run():
+    model.fit(X_train, y_train)
+
+    # Predict and evaluate
+    y_pred_proba = model.predict_proba(X_val)[:, 1]
+    y_pred = model.predict(X_val)
+
+    auc = roc_auc_score(y_val, y_pred_proba)
+    logger.info(f"\n🔍 ROC AUC Score: {auc:.4f}")
+
+    logger.info("\n📊 Classification Report: ")
+    logger.info(classification_report(y_val, y_pred, digits=4))

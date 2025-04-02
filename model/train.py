@@ -1,8 +1,9 @@
+import mlflow
+import joblib
 import logging
 import pandas as pd
 import numpy as np
 import xgboost as xgb
-import mlflow
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.utils import shuffle
@@ -18,7 +19,9 @@ np.random.seed(42)
 
 # Enable mlflow autologging
 mlflow.xgboost.autolog()
+mlflow.set_tracking_uri("http://localhost:5000")
 
+# read fraud data
 DATA_PATH = Path(__file__).resolve().parents[1]/"data"/"credit-card.csv"
 df = pd.read_csv(DATA_PATH)
 
@@ -63,3 +66,10 @@ with mlflow.start_run():
 
     logger.info("\n📊 Classification Report: ")
     logger.info(classification_report(y_val, y_pred, digits=4))
+
+# model output path
+MODEL_OUTPUT_PATH = Path(__file__).resolve().parents[0]/"model.pkl"
+
+# Save the trained model
+joblib.dump(model, MODEL_OUTPUT_PATH)
+logger.info(f"\n✅ Model saved to: {MODEL_OUTPUT_PATH}")

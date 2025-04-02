@@ -19,7 +19,7 @@ spec:
         name: mlflow
         ports:
           - containerPort: 5000
-        env:
+        env:  # use configMapKeyRef
           - name: MLFLOW_TRACKING_URI
             value: http://mlflow:5000
           - name: BACKEND_STORE_URI
@@ -30,3 +30,17 @@ spec:
             value: minioadmin
           - name: AWS_SECRET_ACCESS_KEY
             value: minioadmin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow
+spec:
+  selector:
+    app: mlflow
+  type: NodePort
+  ports:
+    - name: node-port
+      port: 5000
+      targetPort: 5000
+      nodePort: 30500

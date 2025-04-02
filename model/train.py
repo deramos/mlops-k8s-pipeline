@@ -24,4 +24,17 @@ df = pd.read_csv(DATA_PATH)
 
 # Data Inspection
 logger.info(f"Dataset shape: {df.shape}")
-logger.info(f"Fraud Percentage: {df['Class'].sum()} / {len(df)}")
+logger.info(f"Fraud Cases: {df['Class'].sum()} / {len(df)}")
+
+# Shuffle dataset
+df = shuffle(df, random_state=42)
+
+# Split into features and target
+X = df.drop("Class", axis=1)
+y = df["Class"]
+
+# Stratified train-test split (to ensure equal distribution of fraud cases)
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42
+)
+

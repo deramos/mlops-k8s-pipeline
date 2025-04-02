@@ -178,3 +178,5 @@ data/
 
 # mlflow run
 mlruns
+mlartifacts
+model/model.pkl

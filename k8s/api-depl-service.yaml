@@ -21,9 +21,15 @@ spec:
             - containerPort: 5000
           env:
             - name: MLFLOW_TRACKING_URI
-              value: http://mlflow:5000
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config-map
+                  key: mlflow_tracking_url
             - name: MODEL_URI
-              value: models:/your_run_id/model
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config-map
+                  key: model_uri
 ---
 apiVersion: v1
 kind: Service

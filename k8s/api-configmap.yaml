@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: api-config-map
+data:
+  mlflow_tracking_url: http://mlflow:5000
+  model_uri: models:/credit-card-xgboost/1

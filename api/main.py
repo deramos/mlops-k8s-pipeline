@@ -4,7 +4,7 @@ import pandas as pd
 import time
 
 # MLflow model location --> registered model ID
-MODEL_URI = "runs:/your_run_id/model"  # or "models:/fraud-xgb/Production"
+MODEL_URI = "models:/your_run_id/model"  # or "models:/fraud-xgb/Production"
 
 # Load model from MLflow
 model = mlflow.pyfunc.load_model(MODEL_URI)

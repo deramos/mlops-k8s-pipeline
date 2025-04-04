@@ -30,6 +30,10 @@ spec:
             value: minioadmin
           - name: AWS_SECRET_ACCESS_KEY
             value: minioadmin
+        command: [ "/bin/sh", "-c" ]
+        args:
+          - >
+            gunicorn --workers 4 --timeout 60 --bind 0.0.0.0:5000 mlflow.server:app
 ---
 apiVersion: v1
 kind: Service

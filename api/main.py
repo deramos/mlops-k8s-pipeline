@@ -4,7 +4,6 @@ import mlflow
 import pandas as pd
 import time
 
-# Load model from Mlflow
 model = mlflow.pyfunc.load_model(os.getenv("MODEL_URI"))
 
 # Start FastAPI app

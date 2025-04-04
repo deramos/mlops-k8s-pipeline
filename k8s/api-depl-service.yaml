@@ -1,7 +1,7 @@
 apivVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fraud-api
+  name: fraud-api-deployment
   labels:
     app: fraud-api
 spec:
@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: fraud-api
+  name: fraud-api-service
 spec:
   selector:
     app: fraud-api

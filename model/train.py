@@ -1,3 +1,4 @@
+import os
 import mlflow
 import joblib
 import logging
@@ -21,7 +22,7 @@ np.random.seed(42)
 
 # Enable mlflow autologging
 mlflow.xgboost.autolog()
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_tracking_uri(os.getenv("MLFLOW_SERVER"))
 
 # read fraud data
 DATA_PATH = Path(__file__).resolve().parents[1]/"data"/"credit-card.csv"

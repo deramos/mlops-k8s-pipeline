@@ -15,21 +15,36 @@ spec:
         app: mlflow
     spec:
       containers:
-      - image: ghcr.io/mlflow/mlflow:v2.21.2
+      - image: ghcr.io/mlflow/mlflow:latest
         name: mlflow
         ports:
           - containerPort: 5000
         env:  # use configMapKeyRef
           - name: MLFLOW_TRACKING_URI
-            value: http://mlflow:5000
+            valueFrom:
+              configMapKeyRef:
+                name: mlflow-config-map
+                key: mlflow_tracking_uri
           - name: BACKEND_STORE_URI
-            value: postgresql://mlflow:mlflow@postgres:5432/mlflow
+            valueFrom:
+              configMapKeyRef:
+                name: mlflow-config-map
+                key: backend_store_uri
           - name: ARTIFACT_ROOT
-            value: s3://k8s-mlflow/
+            valueFrom:
+              configMapKeyRef:
+                name: mlflow-config-map
+                key: artifact_root
           - name: AWS_ACCESS_KEY_ID
-            value: minioadmin
+            valueFrom:
+              configMapKeyRef:
+                name: mlflow-config-map
+                key: aws_access_key_id
           - name: AWS_SECRET_ACCESS_KEY
-            value: minioadmin
+            valueFrom:
+              configMapKeyRef:
+                name: mlflow-config-map
+                key: aws_secret_access_key
         command: [ "gunicorn" ]
         args:
           - --workers=4

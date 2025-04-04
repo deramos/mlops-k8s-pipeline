@@ -25,3 +25,14 @@ spec:
             - name: MODEL_URI
               value: models:/your_run_id/model
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-api
+spec:
+  selector:
+    app: fraud-api
+  type: LoadBalancer
+  ports:
+    - port: 8000
+      targetPort: 8000

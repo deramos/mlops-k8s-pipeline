@@ -1,0 +1,46 @@
+name: Deploy Infra on PR Approval to Release Branch
+
+on:
+  pull_request_review:
+    types:
+    - submitted
+
+jobs:
+  deploy-infra:
+    if: github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'release'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Set KUBECONFIG
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Install PostgresSQL via OCI
+        run: |
+          helm install postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
+          --version 12.9.0 \
+          --namespace mlops --create-namespace \
+          --set auth.username=${{ secrets.POSTGRES_USERNAME }} \
+          --set auth.password=${{ secrets.POSTGRES_PASSWORD }} \
+          --set auth.database=${{ secrets.POSTGRES_DBNAME }}
+
+      - name: Install MinIO via OCI
+        run: |
+          helm install minio oci://registry-1.docker.io/bitnamicharts/minio \
+            --version 5.1.7 \
+            --namespace mlops \
+            --set mode=standalone \
+            --set rootUser=${{ secrets.MINIO_USERNAME }} \
+            --set rootPassword=${{ secrets.MINIO_PASSWORD }} \
+            --set persistence.enabled=false

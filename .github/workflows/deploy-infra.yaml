@@ -76,3 +76,13 @@ jobs:
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm install prometheus prometheus-community/kube-prometheus-stack \
             --namespace monitoring --create-namespace
+
+      # --- FLAGER ---
+
+      - name: Install Flagger
+        run: |
+          helm repo add flagger https://flagger.app
+          helm install flagger flagger/flagger \
+            --namespace istio-system \
+            --set meshProvider=istio \
+            --set metricsServer=http://prometheus:9090

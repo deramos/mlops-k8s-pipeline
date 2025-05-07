@@ -58,3 +58,21 @@ jobs:
             --set rootUser=${{ secrets.MINIO_USERNAME }} \
             --set rootPassword=${{ secrets.MINIO_PASSWORD }} \
             --set persistence.enabled=false
+
+      # --- EVIDENTLY AI ---
+
+      - name: Install Evidently AI
+        run: |
+          helm repo add evidently https://evidentlyai.github.io/helm-charts
+          helm install evidently evidently/evidently \
+            --namespace mlops \
+            --set postgresql.auth.username=${{ secrets.POSTGRES_USERNAME }} \
+            --set postgresql.auth.password=${{ secrets.POSTGRES_PASSWORD }}
+
+      # --- PROMETHEUS STACK ---
+
+      - name: Install Prometheus Stack
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm install prometheus prometheus-community/kube-prometheus-stack \
+            --namespace monitoring --create-namespace

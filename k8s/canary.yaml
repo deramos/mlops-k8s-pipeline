@@ -26,3 +26,6 @@ spec:
       - name: "Model Performance Check"
         type: pre-rollout
         url: http://evidently-service:5000/api/v1/check_model
+        timeout: 30s
+        metadata:
+          threshold: 1.1  # Allow 10% performance degradation

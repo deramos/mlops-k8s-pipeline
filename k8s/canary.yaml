@@ -1,0 +1,28 @@
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: fraud-api
+  namespace: mlops
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fraud-api
+  service:
+    port: 8000
+  analysis:
+    interval: 1m
+    threshold: 10
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      threshold: 99
+      interval: 1m
+    - name: request-duration
+      threshold: 500
+      interval: 1m
+    webhooks:
+      - name: "Model Performance Check"
+        type: pre-rollout
+        url: http://evidently-service:5000/api/v1/check_model

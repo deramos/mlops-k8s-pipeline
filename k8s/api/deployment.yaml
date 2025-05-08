@@ -1,9 +1,11 @@
-apivVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fraud-api-deployment
   labels:
     app: fraud-api
+  annotations:
+    flagger.app/canary: "true"
 spec:
   replicas: 1
   selector:
@@ -18,7 +20,26 @@ spec:
         - name: fraud-api
           image: derabyte/fraud-api:latest
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
           env:
             - name: MLFLOW_TRACKING_URI
               valueFrom:

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fraud-api-deployment
+  name: fraud-api
   labels:
     app: fraud-api
   annotations:
@@ -55,13 +55,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: fraud-api-service
+  name: fraud-api
   labels:
     app: fraud-api
 spec:
   selector:
     app: fraud-api
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 8000
       targetPort: 8000
+      protocol: TCP
+      name: http

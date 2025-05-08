@@ -15,9 +15,12 @@ spec:
     spec:
       containers:
         - name: evidently
-          image: evidently/service:latest
+          image: evidently-service:latest  # We'll need to build this
           ports:
             - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: evidently-config
           resources:
             limits:
               cpu: "500m"
@@ -37,6 +40,6 @@ spec:
   ports:
     - port: 5000
       targetPort: 5000
-      protocol: TCP
+      protocol: TCP    # Adding this back for explicitness
       name: http
   type: ClusterIP

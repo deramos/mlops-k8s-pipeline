@@ -1,110 +1,227 @@
-# Production Ready ML Pipeline
-Simple production-ready end-to-end ML pipeline with CI/CD, auto-deployments, rollback, and monitoring. This project 
-demonstrates a complete MLOps pipeline for fraud detection using the **Credit Card Fraud Detection Dataset**, deployed 
-and orchestrated with **Kubernetes**. It includes model training, experiment tracking, containerized deployment, and 
-CI/CD, infrastructure setup, and monitoring.
+# MLOps Pipeline: Fraud Detection with Progressive Delivery
 
+A production-grade MLOps pipeline demonstrating modern ML deployment practices with a focus on progressive delivery and monitoring. This project showcases:
 
-## Stack: 
-FastAPI + Docker + Kubernetes + GitHub Actions + Helm + AWS + Terraform
+## Core Features
+- **Model Training & Tracking**: 
+  - XGBoost classifier for fraud detection
+  - MLflow for experiment tracking and model registry
+  - PostgreSQL backend for metadata
+  - MinIO (S3-compatible) for artifact storage
 
-# 🧠 MLOps K8s Fraud Detection Pipeline
+- **Model Serving**: 
+  - FastAPI for real-time predictions
+  - Health checks and metrics endpoints
+  - Model loading from MLflow registry
 
+- **Progressive Delivery**: 
+  - Canary deployments with Flagger
+  - Automated rollback based on metrics
+  - Traffic shifting based on performance
 
----
+- **Model Monitoring**: 
+  - Real-time drift detection with Evidently AI
+  - Performance tracking and alerting
+  - Model retraining triggers
 
-## ✅ Current Progress
+## Tech Stack
+### ML Pipeline
+- **Training**: XGBoost, pandas, scikit-learn
+- **Tracking**: MLflow with PostgreSQL backend
+- **Storage**: MinIO (S3-compatible)
 
-### 🧱 Core Components
-- **Model Training**: XGBoost classifier trained on the Credit Card Fraud Detection dataset.
-- **Experiment Tracking**: MLflow running locally and on Kubernetes, logging metrics, parameters, and model artifacts.
-- **Model Logging**: MLflow autologging and custom metrics (AUC, recall, confusion matrix).
-- **Model Saving**: Trained model saved to `model/model.pkl` using `joblib`.
-- **MLflow on Kubernetes**:
-  - Deployed using official Docker image: `ghcr.io/mlflow/mlflow`
-  - Backend: PostgreSQL via Helm (`bitnami/postgresql`)
-  - Artifact Store: MinIO (S3-compatible) via Helm
-  - Service exposed via **NodePort** (`localhost:30500`)
+### Infrastructure
+- **API**: FastAPI
+- **Container**: Docker
+- **Orchestration**: Kubernetes, Flagger
+- **Monitoring**: Evidently AI, Prometheus
+- **IaC**: Helm
 
----
-
-## 🗂️ Project Structure
+## Project Structure
 ```
-project_root/
-├── README.md
-├── data/
-│   └── creditcard.csv
-├── model/
-│   ├── train.py
-│   └── model.pkl
-├── api/
-│   └── main.py (TBD)
-├── docker/
-│   └── Dockerfile (TBD)
-├── k8s/
-│   ├── deployment.yaml (TBD)
-│   ├── service.yaml (TBD)
-│   └── ingress.yaml (Optional)
-├── helm/
-│   └── (Helm charts for MLflow/TBD)
-├── terraform/
-│   └── (TBD)
-├── .github/
-│   └── workflows/ci-cd.yml (TBD)
-├── monitoring/
-│   ├── prometheus.yaml (TBD)
-│   └── grafana-dashboard.json (TBD)
-└── mlflow/
-    ├── deployment-service.yaml
-    └── config/
-        └── mlflow-config.yaml
+mlops-k8s-pipeline/
+├── api/                 # Model serving
+│   ├── main.py         # FastAPI implementation
+│   └── Dockerfile      # API container build
+├── k8s/                # Kubernetes manifests
+│   ├── api/            # API deployments
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   ├── mlflow/         # MLflow setup
+│   │   └── deployment-service.yaml
+│   ├── monitoring/     # Evidently configs
+│   │   └── evidently/
+│   │       ├── deployment.yaml
+│   │       └── configmap.yaml
+│   └── service-mesh/   # Flagger configs
+│       └── flagger/
+│           └── canary.yaml
+└── .github/            # CI/CD workflows
+    └── workflows/      # GitHub Actions
+        └── deploy-infra.yaml
 ```
 
----
+## Current Status
 
-## 🚀 Running MLflow on Kubernetes
+### Completed ✅
+- Model Development Pipeline
+  - Training script with XGBoost
+  - MLflow experiment tracking
+  - Model versioning and registry
 
-### 1. Deploy PostgreSQL:
+- Infrastructure Setup
+  - MLflow deployment on K8s
+  - PostgreSQL backend
+  - MinIO storage integration
+  - Basic API deployment
+
+### In Progress 🚧
+- Model Monitoring
+  - Evidently service setup
+  - Drift detection configuration
+  - Performance metrics tracking
+
+### Next Steps 📋
+- [ ] Complete Evidently service implementation
+- [ ] Configure canary deployment thresholds
+- [ ] Set up model retraining pipeline
+- [ ] Add comprehensive monitoring dashboard
+
+## Setup and Installation
+
+### Prerequisites
+- Docker Desktop with Kubernetes enabled
+- Helm v3.x
+- kubectl configured for local cluster
+- Python 3.9+
+
+### Local Development Setup
+1. Clone the repository:
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install postgres bitnami/postgresql \
-  --set auth.username=mlflow \
-  --set auth.password=mlflow \
-  --set auth.database=mlflow
+git clone https://github.com/yourusername/mlops-k8s-pipeline.git
+cd mlops-k8s-pipeline
 ```
 
-### 2. Deploy MinIO:
+2. Create Python virtual environment:
 ```bash
-helm repo add minio https://charts.min.io/
-helm install minio minio/minio \
-  --set accessKey=minioadmin \
-  --set secretKey=minioadmin
+python -m venv venv
+source venv/bin/activate  # On macOS/Linux
+pip install -r requirements.txt
 ```
 
-### 3. Deploy MLflow:
-Apply `mlflow/deployment-service.yaml`
+3. Deploy Infrastructure:
+```bash
+# Deploy MLflow and dependencies
+kubectl apply -f k8s/mlflow/
+kubectl apply -f k8s/monitoring/
 
-### 4. Access MLflow UI:
-Visit: `http://localhost:30500` (via NodePort)
+# Verify deployments
+kubectl get pods -n mlops
+```
 
----
+4. Access Services:
+- MLflow UI: http://localhost:30500
+- FastAPI Swagger: http://localhost:30800/docs
+- Evidently Dashboard: http://localhost:30600
 
-## 📦 Next Steps
-- [ ] Build FastAPI service to serve the model (`api/main.py`)
-- [ ] Containerize model serving with Docker
-- [ ] Add CI/CD pipeline (GitHub Actions)
-- [ ] Deploy FastAPI + model to Kubernetes
-- [ ] Add monitoring with Prometheus/Grafana
-- [ ] Simulate and detect data drift
+## Usage Guide
 
----
+### Training a New Model
+```bash
+# Train model and log to MLflow
+python model/train.py
 
-## 📊 Dataset
-- Dataset: [Credit Card Fraud Detection - Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
-- Target variable: `Class` (1 = Fraud, 0 = Not Fraud)
-- Highly imbalanced (~0.17% fraud)
+# Get the model URI from MLflow UI
+export MODEL_URI="models:/fraud_detection/Production"
+```
 
----
+### Deploying Model Updates
+1. Update model version in ConfigMap:
+```bash
+kubectl edit configmap api-config-map -n mlops
+```
 
-## 📜 License
-MIT License
+2. Trigger rolling update:
+```bash
+kubectl rollout restart deployment fraud-api -n mlops
+```
+
+### Monitoring Model Performance
+- View model metrics: MLflow UI
+- Check drift status: Evidently Dashboard
+- Monitor deployment: Kubernetes Dashboard
+
+## API Reference
+
+### Prediction Endpoint
+```bash
+POST /predict
+Content-Type: application/json
+
+{
+    "data": [
+        [1.0, -0.5, 2.3, ...],  # Features as per training data
+    ]
+}
+```
+
+Response:
+```json
+{
+    "predictions": [0],  # 0: Normal, 1: Fraud
+    "latency": 0.0023   # Prediction time in seconds
+}
+```
+
+### Health Check
+```bash
+GET /
+```
+
+Response:
+```json
+{
+    "status": "ok"
+}
+```
+
+## Contributing
+
+### Development Workflow
+1. Fork the repository
+2. Create feature branch:
+```bash
+git checkout -b feature/your-feature-name
+```
+
+3. Make changes and test:
+```bash
+# Run unit tests
+python -m pytest tests/
+
+# Run integration tests
+python -m pytest tests/integration/
+```
+
+4. Submit Pull Request:
+- Describe changes made
+- Link relevant issues
+- Include test coverage
+
+### Environment Variables
+```bash
+# MLflow configuration
+MLFLOW_TRACKING_URI="http://mlflow:5000"
+MLFLOW_S3_ENDPOINT_URL="http://minio:9000"
+
+# MinIO credentials
+AWS_ACCESS_KEY_ID="minioadmin"
+AWS_SECRET_ACCESS_KEY="minioadmin"
+
+# Model configuration
+MODEL_URI="models:/fraud_detection/Production"
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

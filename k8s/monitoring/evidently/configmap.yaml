@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evidently-config
+  namespace: mlops
+data:
+  reference_data_path: "s3://mlflow/reference/data.csv"
+  metrics_path: "s3://mlflow/metrics"
+  drift_threshold: "0.1"
+  performance_threshold: "0.95"

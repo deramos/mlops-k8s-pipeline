@@ -19,7 +19,9 @@ app = FastAPI(title="Model Monitoring Service")
 class ModelMonitor:
     def __init__(self):
         self.mlflow_client = mlflow.tracking.MlflowClient()
+        # Update to use both env variables
         self.drift_threshold = float(os.getenv("DRIFT_THRESHOLD", "0.1"))
+        self.performance_threshold = float(os.getenv("PERFORMANCE_THRESHOLD", "0.95"))
         self.reference_data = self._load_reference_data()
         
     def _load_reference_data(self) -> pd.DataFrame:
@@ -85,9 +87,18 @@ class ModelMonitor:
             
             drift_score = drift_report.metrics[0].result.drift_score
             
+            # Add performance check against base threshold
+            if auc_score < self.performance_threshold:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Base performance {auc_score:.3f} below minimum threshold {self.performance_threshold}"
+                )
+            
             return {
                 'auc': auc_score,
-                'drift_score': drift_score
+                'drift_score': drift_score,
+                'performance_threshold': self.performance_threshold,
+                'drift_threshold': self.drift_threshold
             }
             
         except Exception as e:
@@ -159,7 +170,16 @@ async def check_model(request: Request):
             }
         )
 
+# Add environment variables to metrics output
 @app.get("/metrics")
 async def metrics():
-    """Prometheus metrics endpoint"""
+    """Prometheus metrics endpoint with configuration"""
+    from prometheus_client import Gauge
+    
+    config_drift = Gauge('model_drift_threshold', 'Configured drift threshold')
+    config_perf = Gauge('model_performance_threshold', 'Configured performance threshold')
+    
+    config_drift.set(monitor.drift_threshold)
+    config_perf.set(monitor.performance_threshold)
+    
     return generate_latest()

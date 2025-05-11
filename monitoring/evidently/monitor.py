@@ -1,9 +1,8 @@
 from fastapi import FastAPI, HTTPException, Request
-from evidently.metrics import DataDriftMetric, RegressionPerformanceMetric
+from evidently.metrics import DataDriftMetric
 from evidently.report import Report
 import mlflow
 import pandas as pd
-import numpy as np
 from sklearn.metrics import roc_auc_score
 import os
 from typing import Dict, Any

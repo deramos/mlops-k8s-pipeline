@@ -41,3 +41,16 @@ command:
     - --timeout=60
     - --bind=0.0.0.0:5000
     - mlflow.server:app
+
+# Dependencies
+postgresql:
+  enabled: true
+  auth:
+    database: mlflow
+    username: mlflow
+    password: mlflow
+
+minio:
+  enabled: true
+  rootUser: minioadmin
+  rootPassword: minioadmin

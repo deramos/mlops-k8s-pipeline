@@ -1,0 +1,85 @@
+# Default values for fraud-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Core configuration
+replicaCount: 1
+
+# Image configuration
+image:
+  repository: derabyte/fraud-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Naming and labels
+nameOverride: ""
+fullnameOverride: ""
+labels:
+  app: fraud-api
+selectorLabels:
+  app: fraud-api
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8000
+
+# ConfigMap configuration
+configMap:
+  enabled: true
+  data:
+    mlflow_tracking_url: http://mlflow:5000
+    model_uri: models:/credit-card-xgboost/1
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  hosts:
+    - host: api.fraud-ml.local
+      paths:
+        - path: /
+          pathType: Prefix
+          port: 8000
+
+# Resources
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+# Health checks
+probes:
+  liveness:
+    httpGet:
+      path: /
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    httpGet:
+      path: /
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Volume configuration
+volumes:
+  modelCache:
+    enabled: true
+    type: emptyDir
+    size: 1Gi
+    mountPath: /app/model
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80

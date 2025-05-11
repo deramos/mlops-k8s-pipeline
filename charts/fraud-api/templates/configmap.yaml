@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fraud-api.fullname" . }}-config
+  labels:
+    {{- include "fraud-api.labels" . | nindent 4 }}
+data:
+  {{- if .Values.configMap.enabled }}
+  {{- range $key, $value := .Values.configMap.data }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}

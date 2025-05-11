@@ -23,6 +23,7 @@ selectorLabels:
 service:
   type: ClusterIP
   port: 8000
+  targetPort: 8000 # Add this
 
 # ConfigMap configuration
 configMap:

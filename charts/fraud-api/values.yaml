@@ -35,7 +35,7 @@ configMap:
 # Ingress configuration
 ingress:
   enabled: true
-  className: ""
+  className: "fraud-api-ingress"
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
   hosts:

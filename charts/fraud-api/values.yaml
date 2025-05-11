@@ -88,5 +88,5 @@ autoscaling:
 # Service Account configuration
 serviceAccount:
   create: true
-  name: ""
+  name: "fraud-api-sa"
   annotations: {}

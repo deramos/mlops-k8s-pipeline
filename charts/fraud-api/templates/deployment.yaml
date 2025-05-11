@@ -16,6 +16,7 @@ spec:
       labels:
         {{- include "fraud-api.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccount.name | default (include "fraud-api.fullname" .) }}
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.configMap.enabled }}

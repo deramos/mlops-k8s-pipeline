@@ -1,14 +1,18 @@
+# Core configuration
 replicaCount: 1
 
+# Image configuration
 image:
   repository: derabyte/fraud-monitoring
   tag: latest
   pullPolicy: IfNotPresent
 
+# Service configuration
 service:
   type: ClusterIP
   port: 5000
 
+# Resources
 resources:
   limits:
     cpu: 1000m
@@ -17,6 +21,7 @@ resources:
     cpu: 500m
     memory: 1Gi
 
+# ConfigMap configuration
 configMap:
   enabled: true
   data:

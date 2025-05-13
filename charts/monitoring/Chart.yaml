@@ -1,6 +1,6 @@
 apiVersion: v2
 name: monitoring
 description: Model Monitoring Service for Fraud Detection
-type: applicatio
+type: application
 version: 0.1.0
 appVersion: "1.0.0"

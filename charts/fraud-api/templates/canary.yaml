@@ -2,8 +2,7 @@ apiVersion: flagger.app/v1beta1
 kind: Canary
 metadata:
   name: {{ include "fraud-api.fullname" . }}
-  labels:
-    {{- include "fraud-api.labels" . | nindent 4 }}
+  namespace: {{ .Values.namespace }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -28,3 +27,9 @@ spec:
         type: pre-rollout
         url: http://{{ include "fraud-api.fullname" . }}-canary/health
         timeout: 15s
+      - name: model-performance
+        type: pre-rollout
+        url: http://monitoring.{{ .Values.namespace }}.svc.cluster.local/check-model
+        timeout: 30s
+        metadata:
+          threshold: "10"  # 10% maximum performance degradation allowed

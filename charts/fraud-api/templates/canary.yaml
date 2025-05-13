@@ -1,15 +1,16 @@
 apiVersion: flagger.app/v1beta1
 kind: Canary
 metadata:
-  name: fraud-api
-  namespace: mlops
+  name: {{ include "fraud-api.fullname" . }}
+  labels:
+    {{- include "fraud-api.labels" . | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: fraud-api
+    name: {{ include "fraud-api.fullname" . }}
   service:
-    port: 8000
+    port: {{ .Values.service.port }}
   analysis:
     interval: 1m
     threshold: 10
@@ -23,9 +24,7 @@ spec:
       threshold: 500
       interval: 1m
     webhooks:
-      - name: "Model Performance Check"
+      - name: health-check
         type: pre-rollout
-        url: http://evidently-service:5000/api/v1/check_model
-        timeout: 30s
-        metadata:
-          threshold: 10  # Allow 10% performance degradation
+        url: http://{{ include "fraud-api.fullname" . }}-canary/health
+        timeout: 15s

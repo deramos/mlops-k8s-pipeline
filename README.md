@@ -43,22 +43,62 @@ mlops-k8s-pipeline/
 ├── api/                 # Model serving
 │   ├── main.py         # FastAPI implementation
 │   └── Dockerfile      # API container build
-├── k8s/                # Kubernetes manifests
-│   ├── api/            # API deployments
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   ├── mlflow/         # MLflow setup
-│   │   └── deployment-service.yaml
-│   ├── monitoring/     # Evidently configs
-│   │   └── evidently/
+├── charts/             # Helm charts
+│   ├── fraud-api/      # Fraud Detection API
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml
+│   │   └── templates/
+│   │       ├── _helpers.tpl
 │   │       ├── deployment.yaml
+│   │       ├── service.yaml
+│   │       ├── configmap.yaml
+│   │       └── canary.yaml
+│   ├── mlflow/         # MLflow Tracking Server
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml
+│   │   └── templates/
+│   │       ├── _helpers.tpl
+│   │       ├── deployment.yaml
+│   │       ├── service.yaml
 │   │       └── configmap.yaml
-│   └── service-mesh/   # Flagger configs
-│       └── flagger/
-│           └── canary.yaml
+│   └── monitoring/     # Model Monitoring Service
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│           ├── _helpers.tpl
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           └── configmap.yaml
 └── .github/            # CI/CD workflows
     └── workflows/      # GitHub Actions
         └── deploy-infra.yaml
+```
+
+### Installation with Helm
+
+After completing the prerequisites in the previous section:
+
+1. Add required Helm repositories:
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add minio https://charts.min.io/
+helm repo update
+```
+
+2. Install components:
+```bash
+# Install MLflow with dependencies
+helm install mlflow ./charts/mlflow \
+  --namespace mlops \
+  --create-namespace
+
+# Install Monitoring service
+helm install monitoring ./charts/monitoring \
+  --namespace mlops
+
+# Install Fraud API
+helm install fraud-api ./charts/fraud-api \
+  --namespace mlops
 ```
 
 ## Current Status

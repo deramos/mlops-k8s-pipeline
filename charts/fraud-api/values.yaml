@@ -5,6 +5,9 @@
 # Core configuration
 replicaCount: 1
 
+# Namespace
+namespace: mlops
+
 # Image configuration
 image:
   repository: derabyte/fraud-api

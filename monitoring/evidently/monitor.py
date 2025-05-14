@@ -24,15 +24,15 @@ class ModelMonitor:
         self.reference_data = self._load_reference_data()
         
     def _load_reference_data(self) -> pd.DataFrame:
-        """Load reference data from MLflow artifacts"""
+        """Load reference data directly using mlflow.pyfunc"""
         try:
-            production_model = self.mlflow_client.get_latest_versions(
-                name="fraud_detection",
-                stages=["Production"]
-            )[0]
-            reference_data_path = self.mlflow_client.download_artifacts(
-                run_id=production_model.run_id,
-                path="reference_data.csv"
+            # Load production model directly
+            production_model = mlflow.pyfunc.load_model("models:/fraud_detection/Production")
+            # Get reference data from model's run artifacts
+            run_id = production_model.metadata.run_id
+            reference_data_path = mlflow.artifacts.download_artifacts(
+                run_id=run_id,
+                artifact_path="reference_data.csv"
             )
             return pd.read_csv(reference_data_path)
         except Exception as e:
@@ -42,13 +42,12 @@ class ModelMonitor:
             )
 
     def get_reference_metrics(self) -> Dict[str, Any]:
-        """Get reference metrics from MLflow production model"""
+        """Get reference metrics directly from model metadata"""
         try:
-            production_model = self.mlflow_client.get_latest_versions(
-                name="fraud_detection",
-                stages=["Production"]
-            )[0]
-            return production_model.metrics
+            # Load production model directly
+            production_model = mlflow.pyfunc.load_model("models:/fraud_detection/Production")
+            # Get metrics from model metadata
+            return production_model.metadata.metrics
         except Exception as e:
             raise HTTPException(
                 status_code=500,

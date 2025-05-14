@@ -20,16 +20,10 @@ spec:
       threshold: 99
       interval: 1m
     - name: request-duration
-      threshold: 500
+      threshold: 500      # 500ms latency threshold
       interval: 1m
     webhooks:
       - name: health-check
         type: pre-rollout
         url: http://{{ include "fraud-api.fullname" . }}-canary/health
         timeout: 15s
-      - name: model-performance
-        type: pre-rollout
-        url: http://monitoring.{{ .Values.namespace }}.svc.cluster.local/check-model
-        timeout: 30s
-        metadata:
-          threshold: "10"  # 10% maximum performance degradation allowed

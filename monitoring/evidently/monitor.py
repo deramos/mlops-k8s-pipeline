@@ -113,13 +113,10 @@ monitor = ModelMonitor()
 
 @app.post("/api/v1/check_model")
 async def check_model(request: Request):
-    """Endpoint called by Flagger before canary deployment"""
-    MODEL_CHECK_COUNTER.inc()
-    
     try:
-        # Get threshold from request metadata
         webhook_data = await request.json()
-        threshold = float(webhook_data.get('metadata', {}).get('threshold', 1.1))
+        # Make threshold logic clearer
+        degradation_threshold = float(webhook_data.get('metadata', {}).get('threshold', 0.1))
         
         with CHECK_DURATION.time():
             # Get metrics
@@ -129,13 +126,13 @@ async def check_model(request: Request):
             # Check performance degradation
             degradation = (ref_metrics['auc'] - current_metrics['auc']) / ref_metrics['auc']
             
-            if degradation > threshold - 1:  # Convert 1.1 to 0.1
+            if degradation > degradation_threshold:  # Direct comparison
                 MODEL_FAILURES.inc()
                 raise HTTPException(
                     status_code=422,
                     detail={
                         "status": "failed",
-                        "message": f"Performance degradation {degradation:.2%} exceeds threshold"
+                        "message": f"Performance degradation {degradation:.2%} exceeds threshold {degradation_threshold:.2%}"
                     }
                 )
             

@@ -18,7 +18,9 @@ app = FastAPI(title="Model Monitoring Service")
 class ModelMonitor:
     def __init__(self):
         self.mlflow_client = mlflow.tracking.MlflowClient()
-        # Update to use both env variables
+        # Use explicit model version from env
+        self.model_name = os.getenv("MODEL_NAME", "fraud_detection")
+        self.model_version = os.getenv("MODEL_VERSION")
         self.drift_threshold = float(os.getenv("DRIFT_THRESHOLD", "0.1"))
         self.performance_threshold = float(os.getenv("PERFORMANCE_THRESHOLD", "0.95"))
         self.reference_data = self._load_reference_data()
@@ -26,8 +28,10 @@ class ModelMonitor:
     def _load_reference_data(self) -> pd.DataFrame:
         """Load reference data directly using mlflow.pyfunc"""
         try:
-            # Load production model directly
-            production_model = mlflow.pyfunc.load_model("models:/fraud_detection/Production")
+            # Use explicit version
+            production_model = mlflow.pyfunc.load_model(
+                f"models:/{self.model_name}/{self.model_version}"
+            )
             # Get reference data from model's run artifacts
             run_id = production_model.metadata.run_id
             reference_data_path = mlflow.artifacts.download_artifacts(

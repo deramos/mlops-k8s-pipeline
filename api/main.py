@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 import mlflow
 import pandas as pd
 import time
@@ -28,25 +28,3 @@ async def predict(request: Request):
         "predictions": predictions.tolist(),
         "latency": round(latency, 4)
     }
-
-
-@app.post("/api/v1/check_model")
-async def check_model(request: Request):
-    try:
-        webhook_data = await request.json()
-        # Make threshold logic clearer
-        degradation_threshold = float(webhook_data.get('metadata', {}).get('threshold', 0.1))
-
-        with CHECK_DURATION.time():
-            # ...existing code...
-            if degradation > degradation_threshold:  # Direct comparison
-                MODEL_FAILURES.inc()
-                raise HTTPException(
-                    status_code=422,
-                    detail={
-                        "status": "failed",
-                        "message": f"Performance degradation {degradation:.2%} exceeds threshold {degradation_threshold:.2%}"
-                    }
-                )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

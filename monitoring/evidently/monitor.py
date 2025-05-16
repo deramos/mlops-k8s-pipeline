@@ -18,11 +18,20 @@ app = FastAPI(title="Model Monitoring Service")
 class ModelMonitor:
     def __init__(self):
         self.mlflow_client = mlflow.tracking.MlflowClient()
-        # Use explicit model version from env
-        self.model_name = os.getenv("MODEL_NAME", "fraud_detection")
+        # Validate required env vars
+        self.model_name = os.getenv("MODEL_NAME")
         self.model_version = os.getenv("MODEL_VERSION")
-        self.drift_threshold = float(os.getenv("DRIFT_THRESHOLD", "0.1"))
-        self.performance_threshold = float(os.getenv("PERFORMANCE_THRESHOLD", "0.95"))
+        
+        if not all([self.model_name, self.model_version]):
+            raise ValueError("MODEL_NAME and MODEL_VERSION must be set")
+            
+        # Parse thresholds with validation
+        try:
+            self.drift_threshold = float(os.getenv("DRIFT_THRESHOLD", "0.1"))
+            self.performance_threshold = float(os.getenv("PERFORMANCE_THRESHOLD", "0.95"))
+        except ValueError as e:
+            raise ValueError("Invalid threshold values")
+        
         self.reference_data = self._load_reference_data()
         
     def _load_reference_data(self) -> pd.DataFrame:
